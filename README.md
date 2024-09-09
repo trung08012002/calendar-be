@@ -57,6 +57,8 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+# create database
+$ docker run compose-up
 
 ## Resources
 
