@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id       Int          @id @default(autoincrement())
+  username      String
+  email         String       @unique
+  password_hash String
+  created_at    DateTime     @default(now())
+  invitations   Invitation[]
+  event         Event[]
+}
+
+model Event {
+  event_id        Int          @id @default(autoincrement())
+  title           String
+  description     String?
+  start_time      DateTime
+  end_time        DateTime
+  location        String?
+  is_recurring    Boolean      @default(false)
+  recurrence_rule String?
+  event_type      String
+  time_zone_code  String
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+  creator_id      Int
+  creator         User         @relation(fields: [creator_id], references: [user_id])
+  invitations     Invitation[]
+  reminders       Reminder[]
+}
+
+model Invitation {
+  invitation_id Int      @id @default(autoincrement())
+  event_id      Int
+  invitee_id    Int
+  status        String   @default("pending")
+  sent_at       DateTime @default(now())
+
+  Event Event @relation(fields: [event_id], references: [event_id])
+  User  User  @relation(fields: [invitee_id], references: [user_id])
+}
+
+model Reminder {
+  reminder_id Int      @id @default(autoincrement())
+  event_id    Int
+  remind_at   DateTime
+  method      String
+
+  Event Event @relation(fields: [event_id], references: [event_id])
+}
